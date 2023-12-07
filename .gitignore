@@ -1,5 +1,7 @@
 .idea/
+*.user
 .vs/
+x64/
 build/
 CMakeUserPresets.json
 cmake-build-debug/
