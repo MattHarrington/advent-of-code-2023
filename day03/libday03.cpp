@@ -5,8 +5,6 @@
 #include <numeric>
 #include <regex>
 
-#include <print>
-
 std::vector<std::string> read_input(const std::string& filename)
 {
     std::fstream in{ filename };
@@ -31,60 +29,55 @@ int part1(const std::vector<std::string>& schematic)
     std::vector<int> part_numbers;
 
     const std::regex r{ R"((\d+))" };
-    std::smatch sm;
 
     for (auto row{ 0 }; row < schematic.size(); ++row)
     {
         std::string line{ schematic.at(row) };
-        auto pos{ 0 };
-        auto start_pos{ std::cbegin(line) };
-        while (std::regex_search(start_pos, std::cend(line), sm, r))
+        for (auto i{std::sregex_iterator(std::cbegin(line), std::cend(line), r)}; i != std::sregex_iterator(); ++i)
         {
-            pos += sm.position(1) + sm[1].length();
-            auto col{ pos }; // incorrect when matching suffix
+            auto match{ *i };
+            auto pos{ match.position()};
+            auto match_length{ match.length(1) };
 
-            auto num_length{ sm.length(1) };
             // Check left
-            if (col > 0 && (line.at(col - 1) != '.' || !std::isdigit(line.at(col - 1))))
+            if (pos > 0 && line.at(pos - 1) != '.' )
             {
-                part_numbers.push_back(std::stoi(sm[1]));
+                part_numbers.push_back(std::stoi(match.str()));
             }
+
             // Check right
-            else if (static_cast<size_t>(col) < line.size() && (line.at(col + num_length) != '.'))
+            else if (static_cast<size_t>(pos) < line.size() - match_length && (line.at(pos + match_length) != '.'))
             {
-                part_numbers.push_back(std::stoi(sm[1]));
+                part_numbers.push_back(std::stoi(match.str()));
             }
+
             // Check row above
             else if (row > 0)
             {
-                for (auto i{ 0 }; i < num_length + 2; ++i)
+                for (auto i{ 0 }; i < match_length + 2; ++i)
                 {
                     auto prev_row{ schematic.at(row - 1) };
-                    if (col + i > 0 && col + i < line.size() && ((prev_row.at(col + i - 1) != '.' || !std::isdigit(prev_row.at(col + i - 1)))))
+                    if (pos + i > 0 && pos + i < line.size() && prev_row.at(pos + i - 1) != '.' )
                     {
-                        part_numbers.push_back(std::stoi(sm[1]));
-                        //goto check_row_below;
+                        part_numbers.push_back(std::stoi(match.str()));
                         break;
                     }
                 }
             }
-            //check_row_below:
+
+            // Check row below
             if (row < schematic.size() - 1)
             {
                 auto next_row{ schematic.at(row + 1) };
-                for (auto i{ 0 }; i < num_length + 2; ++i)
+                for (auto i{ 0 }; i < match_length + 2; ++i)
                 {
-                    if (col + i > 0 && col + i < line.size() && ((next_row.at(col + i - 1) != '.' || !std::isdigit(next_row.at(col + i - 1)))))
-                        //if (col + i > 0 && next_row.at(col + i - 1) != '.')
+                    if (pos + i > 0 && pos + i < line.size() && next_row.at(pos + i - 1) != '.' )
                     {
-                        part_numbers.push_back(std::stoi(sm[1]));
-                        //goto finished_with_row;
+                        part_numbers.push_back(std::stoi(match.str()));
                         break;
                     }
                 }
             }
-            start_pos = sm.suffix().first;
-            //finished_with_row:
         }
     }
 
