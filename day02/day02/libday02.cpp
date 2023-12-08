@@ -65,7 +65,7 @@ std::vector<Game> read_input(const std::string& filename)
     return games;
 }
 
-int part1(const std::vector<Game>& games)
+int part1(const std::vector<Game>& games) noexcept
 {
     const Game elf_criteria{ .max_red = 12, .max_green = 13, .max_blue = 14 };
 
@@ -83,13 +83,13 @@ int part1(const std::vector<Game>& games)
     return sum_possible_game_numbers;
 }
 
-int part2(const std::vector<Game>& games)
+int part2(const std::vector<Game>& games) noexcept
 {
     int sum_of_powers{ 0 };
 
     for (const auto& game : games)
     {
-        int power{ game.max_red * game.max_green * game.max_blue };
+        const int power{ game.max_red * game.max_green * game.max_blue };
         sum_of_powers += power;
     }
 

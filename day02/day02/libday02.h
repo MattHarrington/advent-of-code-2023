@@ -19,6 +19,16 @@ std::vector<Game> read_input(
     const std::string& filename ///< The filename to read
 );
 
-int part1(const std::vector<Game>& games);
+/// \brief Solve part 1.
+///
+/// \return Sum of game numbers which meet the elf's criteria.
+int part1(
+    const std::vector<Game>& games ///< All of the games
+) noexcept;
 
-int part2(const std::vector<Game>& games);
+/// \brief Solve part 2.
+///
+/// \return Sum of powers of minumum number of cubes for each game.
+int part2(
+    const std::vector<Game>& games ///< All of the games
+) noexcept;
