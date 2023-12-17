@@ -1,6 +1,6 @@
 import std;
 import day04mod;
-#include <cassert>
+#include <assert.h>
 
 int main()
 {
@@ -13,4 +13,20 @@ int main()
     assert(199 == puzzle_input.size());
     assert(10 == puzzle_input.front().first.size());
     assert(25 == puzzle_input.front().second.size());
+
+    const auto part1_sample_answer{ part1(sample_input) };
+    std::println("Part 1 sample answer: {}", part1_sample_answer);
+    assert(13 == part1_sample_answer);
+
+    const auto part1_answer{ part1(puzzle_input) };
+    std::println("Part 1 answer: {}", part1_answer);
+    assert(23'847 == part1_answer);
+
+    const auto part2_sample_answer{ part2(sample_input) };
+    std::println("Part 2 sample answer: {}", part2_sample_answer);
+    assert(30 == part2_sample_answer);
+
+    const auto part2_answer{ part2(puzzle_input) };
+    std::println("Part 2 answer: {}", part2_answer);
+    assert(8'570'000 == part2_answer);
 }
