@@ -1,5 +1,8 @@
+#include <algorithm>
 #include <fstream>
+#include <numeric>
 #include <regex>
+#include <vector>
 
 #include "libday08.hpp"
 
@@ -21,7 +24,7 @@ Map read_input(const std::string& filename)
 	getline(in, line); // Skip a line
 
 	std::map<std::string, std::pair<std::string, std::string>> network;
-	const std::regex r{ R"(([A-Z]+) = \(([A-Z]+), ([A-Z]+)\))" };
+	const std::regex r{ R"(([A-Z\d]+) = \(([A-Z\d]+), ([A-Z\d]+)\))" };
 	std::smatch sm;
 
 	while (getline(in, line))
@@ -54,4 +57,43 @@ int part1(const Map& map)
 		}
 	}
 	return steps;
+}
+
+long long part2(const Map& map)
+{
+	// Find starting nodes
+	std::vector<std::string> nodes;
+	for (const auto& node : map.network)
+	{
+		if (node.first.back() == 'A')
+		{
+			nodes.emplace_back(node.first);
+		}
+	}
+
+	// Find when each node's value repeats throughout the instruction sequence
+	std::vector<long long> periods;
+	for (auto& node : nodes)
+	{
+		auto instruction{ std::cbegin(map.instructions) };
+		auto steps{ 0LL };
+		while (node.back() != 'Z')
+		{
+			++steps;
+			node = (*instruction == 'L' ? map.network.at(node).first : map.network.at(node).second);
+			if (std::next(instruction) == std::cend(map.instructions))
+			{
+				instruction = std::cbegin(map.instructions);
+			}
+			else
+			{
+				++instruction;
+			}
+		}
+		periods.push_back(steps);
+	}
+
+	// Solution is LCM of all periods
+	auto lcm{ std::accumulate(std::cbegin(periods), std::cend(periods), 1LL, std::lcm<long long, long long>) };
+	return lcm;
 }

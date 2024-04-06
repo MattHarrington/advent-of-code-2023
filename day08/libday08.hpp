@@ -12,4 +12,6 @@ struct Map
 
 Map read_input(const std::string&);
 
-int part1(const Map&);
+int part1(const Map& map);
+
+long long part2(const Map& map);
