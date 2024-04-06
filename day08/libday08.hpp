@@ -6,8 +6,8 @@
 
 struct Map
 {
-	std::string instructions;
-	std::map<std::string, std::pair<std::string, std::string>> network;
+    std::string instructions;
+    std::map<std::string, std::pair<std::string, std::string>> network;
 };
 
 Map read_input(const std::string&);
