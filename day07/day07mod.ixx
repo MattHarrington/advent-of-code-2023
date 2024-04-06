@@ -2,10 +2,15 @@ export module day07mod;
 
 import std;
 
+export enum class PuzzlePart
+{
+	one, two
+};
+
 enum class Card
 {
-	two = 2, three, four, five, six, seven,
-	eight, nine, T, J, Q, K, A
+	Joker = 1, Two, Three, Four, Five, Six, Seven,
+	Eight, Nine, Ten, Jack, Queen, King, Ace
 };
 
 enum class Type
@@ -13,13 +18,29 @@ enum class Type
 	high_card, pair, two_pair, three_of_a_kind, full_house, four_of_a_kind, five_of_a_kind
 };
 
-Type get_type(const std::vector<Card>& cards)
+Type get_type(const std::vector<Card>& cards, const PuzzlePart& puzzle_part)
 {
 	Type type{};
 	std::map<Card, int> card_map;
 	for (const auto& card : cards)
 	{
 		++card_map[card];
+	}
+
+	if (puzzle_part == PuzzlePart::two)
+	{
+		const auto num_jokers{ card_map[Card::Joker] };
+		card_map.erase(Card::Joker);
+		auto max_card_it{ std::max_element(std::cbegin(card_map), std::cend(card_map), [](const auto& a, const auto& b) { return a.second < b.second; }) };
+		if (max_card_it == std::cend(card_map))
+		{
+			// Hand was all Jokers. Treat it as 5 Aces.
+			card_map[Card::Ace] += num_jokers;
+		}
+		else
+		{
+			card_map[(*max_card_it).first] += num_jokers;
+		}
 	}
 
 	if (std::find_if(std::cbegin(card_map), std::cend(card_map),
@@ -68,9 +89,10 @@ struct Hand
 {
 	std::vector<Card> cards;
 	int bid;
+	PuzzlePart puzzle_part;
 	friend bool operator<(const Hand& left, const Hand& right) {
-		const auto this_type{ get_type(left.cards) };
-		const auto other_type{ get_type(right.cards) };
+		const auto this_type{ get_type(left.cards, left.puzzle_part) };
+		const auto other_type{ get_type(right.cards, right.puzzle_part) };
 		if (this_type != other_type)
 		{
 			return this_type < other_type;
@@ -85,11 +107,12 @@ struct Hand
 				}
 				return left.cards.at(i) < right.cards.at(i);
 			}
+			return false; // Hands are equal. Does not occur in this puzzle.
 		}
 	}
 };
 
-export std::vector<Hand> read_input(const std::string& filename)
+export std::vector<Hand> read_input(const std::string& filename, const PuzzlePart& puzzle_part = PuzzlePart::one)
 {
 	std::fstream in{ std::fstream(filename) };
 	if (!in)
@@ -113,43 +136,43 @@ export std::vector<Hand> read_input(const std::string& filename)
 				switch (c)
 				{
 				case '2':
-					card = Card::two;
+					card = Card::Two;
 					break;
 				case '3':
-					card = Card::three;
+					card = Card::Three;
 					break;
 				case '4':
-					card = Card::four;
+					card = Card::Four;
 					break;
 				case '5':
-					card = Card::five;
+					card = Card::Five;
 					break;
 				case '6':
-					card = Card::six;
+					card = Card::Six;
 					break;
 				case '7':
-					card = Card::seven;
+					card = Card::Seven;
 					break;
 				case '8':
-					card = Card::eight;
+					card = Card::Eight;
 					break;
 				case '9':
-					card = Card::nine;
+					card = Card::Nine;
 					break;
 				case 'T':
-					card = Card::T;
+					card = Card::Ten;
 					break;
 				case 'J':
-					card = Card::J;
+					puzzle_part == PuzzlePart::one ? card = Card::Jack : card = Card::Joker;
 					break;
 				case 'Q':
-					card = Card::Q;
+					card = Card::Queen;
 					break;
 				case 'K':
-					card = Card::K;
+					card = Card::King;
 					break;
 				case 'A':
-					card = Card::A;
+					card = Card::Ace;
 					break;
 				default:
 					throw std::invalid_argument("Invalid argument");
@@ -157,6 +180,7 @@ export std::vector<Hand> read_input(const std::string& filename)
 				hand.cards.push_back(card);
 			}
 			hand.bid = std::stoi(sm[2]);
+			hand.puzzle_part = puzzle_part;
 			hands.emplace_back(hand);
 		}
 	}
@@ -164,11 +188,8 @@ export std::vector<Hand> read_input(const std::string& filename)
 	return hands;
 }
 
-
-
-export long long part1(std::vector<Hand> hands)
+void print_hands(const std::vector<Hand>& hands)
 {
-	std::sort(std::begin(hands), std::end(hands));
 	for (const auto& hand : hands)
 	{
 		std::stringstream ss;
@@ -177,43 +198,46 @@ export long long part1(std::vector<Hand> hands)
 			char c;
 			switch (card)
 			{
-			case Card::two:
+			case Card::Joker:
+				c = '*';
+				break;
+			case Card::Two:
 				c = '2';
 				break;
-			case Card::three:
+			case Card::Three:
 				c = '3';
 				break;
-			case Card::four:
+			case Card::Four:
 				c = '4';
 				break;
-			case Card::five:
+			case Card::Five:
 				c = '5';
 				break;
-			case Card::six:
+			case Card::Six:
 				c = '6';
 				break;
-			case Card::seven:
+			case Card::Seven:
 				c = '7';
 				break;
-			case Card::eight:
+			case Card::Eight:
 				c = '8';
 				break;
-			case Card::nine:
+			case Card::Nine:
 				c = '9';
 				break;
-			case Card::T:
+			case Card::Ten:
 				c = 'T';
 				break;
-			case Card::J:
+			case Card::Jack:
 				c = 'J';
 				break;
-			case Card::Q:
+			case Card::Queen:
 				c = 'Q';
 				break;
-			case Card::K:
+			case Card::King:
 				c = 'K';
 				break;
-			case Card::A:
+			case Card::Ace:
 				c = 'A';
 				break;
 			default:
@@ -221,7 +245,7 @@ export long long part1(std::vector<Hand> hands)
 			}
 			ss << c;
 		}
-		auto type{ get_type(hand.cards) };
+		auto type{ get_type(hand.cards, hand.puzzle_part) };
 		std::string type_s;
 		switch (type)
 		{
@@ -249,10 +273,19 @@ export long long part1(std::vector<Hand> hands)
 		default:
 			throw std::invalid_argument("Bad input");
 		}
-		println("Cards: {}, Type: {}", ss.str(), type_s);
+		println("Cards: {}, Type: {}, Bid: {}", ss.str(), type_s, hand.bid);
 	}
-	long long winnings{ 0 };
+}
 
+export int get_score(std::vector<Hand> hands)
+{
+	std::sort(std::begin(hands), std::end(hands));
+
+#ifdef _DEBUG
+	print_hands(hands);
+#endif
+
+	auto winnings{ 0 };
 	for (auto i{ 0 }; i < hands.size(); ++i)
 	{
 		winnings += hands.at(i).bid * (i + 1);
