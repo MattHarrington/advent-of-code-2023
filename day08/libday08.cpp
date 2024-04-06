@@ -42,18 +42,18 @@ int part1(const Map& map)
 {
     auto steps{ 0 };
     std::string node{ "AAA" };
-    auto it{ std::cbegin(map.instructions) };
+    auto instruction{ std::cbegin(map.instructions) };
     while (node != "ZZZ")
     {
         ++steps;
-        node = (*it == 'L' ? map.network.at(node).first : map.network.at(node).second);
-        if (std::next(it) == std::cend(map.instructions))
+        node = (*instruction == 'L' ? map.network.at(node).first : map.network.at(node).second);
+        if (std::next(instruction) == std::cend(map.instructions))
         {
-            it = std::cbegin(map.instructions);
+            instruction = std::cbegin(map.instructions);
         }
         else
         {
-            ++it;
+            ++instruction;
         }
     }
     return steps;
