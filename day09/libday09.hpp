@@ -7,6 +7,11 @@
 using History = std::vector<int>;
 using Report = std::vector<History>;
 
-Report read_input(const std::string& filename);
+enum class PuzzlePart
+{
+    one, two
+};
 
-int part1(const Report& report);
+Report read_input(const std::string& filename, const PuzzlePart& puzzle_part);
+
+int solve(const Report& report);
